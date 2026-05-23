@@ -1,0 +1,11 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage ('Delete Cluster'){
+            steps {
+                sh 'eksctl delete cluster --name ecomm --region us-east-1'
+            }
+        }
+    }
+}
