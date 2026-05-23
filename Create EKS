@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Create Cluster EKS') {
+            steps {
+                sh '''
+                eksctl create cluster \
+                  --name ecomm \
+                  --region us-east-1 \
+                  --node-type t3.small \
+                  --nodes 2 \
+                  --node-volume-size 20 \
+                  --spot \
+                  --managed \
+                  --vpc-nat-mode Disable
+                '''
+            }
+        }
+    }
+}
