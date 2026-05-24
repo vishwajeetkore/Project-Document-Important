@@ -1,0 +1,322 @@
+# ==================================================
+# Jenkins Installation and Setup (Ubuntu)
+# ==================================================
+
+# Step 1: Update System
+sudo apt update
+
+# ==================================================
+# Step 2: Install Java (JDK 21)
+# Jenkins requires Java
+# ==================================================
+
+sudo apt install openjdk-21-jdk -y
+
+# Verify Java installation
+java -version
+
+# Expected Output:
+# openjdk version "21..."
+
+# ==================================================
+# Step 3: Add Jenkins Repository and GPG Key
+# ==================================================
+
+# Create keyrings directory
+sudo mkdir -p /etc/apt/keyrings
+
+# Download Jenkins GPG key
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key | \
+sudo tee /etc/apt/keyrings/jenkins-keyring.asc > /dev/null
+
+# Add Jenkins repository
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | \
+sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+# Update package list again
+sudo apt update
+
+# ==================================================
+# Step 4: Install Jenkins
+# ==================================================
+
+sudo apt install jenkins -y
+
+# Check Jenkins version
+jenkins --version
+
+# ==================================================
+# Step 5: Start and Enable Jenkins
+# ==================================================
+
+# Enable Jenkins on boot
+sudo systemctl enable jenkins
+
+# Start Jenkins
+sudo systemctl start jenkins
+
+# Check Jenkins status
+sudo systemctl status jenkins --no-pager
+
+# Expected:
+# active (running)
+
+# ==================================================
+# Step 6: Install Docker (Optional but Recommended)
+# ==================================================
+
+# Install Docker
+sudo apt install docker.io -y
+
+# Start Docker
+sudo systemctl start docker
+
+# Enable Docker
+sudo systemctl enable docker
+
+# Add Jenkins user to Docker group
+sudo usermod -aG docker jenkins
+
+# Verify Docker installation
+docker --version
+
+# Restart Docker
+sudo systemctl restart docker
+
+# Restart Jenkins after Docker permission change
+sudo systemctl restart jenkins
+
+# ==================================================
+# Step 7: Open Jenkins in Browser
+# Default Port = 8080
+# ==================================================
+
+# Access Jenkins using:
+# http://<EC2-Public-IP>:8080
+
+# Example:
+# http://44.x.x.x:8080
+
+# ==================================================
+# Step 8: Get Initial Jenkins Admin Password
+# ==================================================
+
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+# Copy this password and paste into Jenkins setup page
+
+# ==================================================
+# If Jenkins Faces Temp Directory (/tmp) Issue
+# ==================================================
+
+# Problem:
+# Jenkins may fail if /tmp has space limitation
+
+# Solution:
+# Move temp directory to disk-backed storage
+
+# ==================================================
+# Step 9: Create New Jenkins Temp Directory
+# ==================================================
+
+sudo mkdir -p /var/tmp/jenkins
+
+# Give permissions
+sudo chmod 777 /var/tmp/jenkins
+
+# ==================================================
+# Step 10: Create Jenkins Systemd Override Directory
+# ==================================================
+
+sudo mkdir -p /etc/systemd/system/jenkins.service.d
+
+# ==================================================
+# Step 11: Configure New Temp Directory
+# ==================================================
+
+sudo bash -c 'cat > /etc/systemd/system/jenkins.service.d/override.conf <<EOF
+[Service]
+Environment="JAVA_OPTS=-Djava.io.tmpdir=/var/tmp/jenkins"
+EOF'
+
+# ==================================================
+# Step 12: Reload Systemd
+# ==================================================
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+
+# ==================================================
+# Step 13: Restart Jenkins
+# ==================================================
+
+sudo systemctl restart jenkins
+
+# Check Jenkins status
+sudo systemctl status jenkins --no-pager
+
+# ==================================================
+# Step 14: Validate Temp Directory Change
+# ==================================================
+
+ps -ef | grep jenkins | grep tmp
+
+# Expected Output:
+# -Djava.io.tmpdir=/var/tmp/jenkins
+
+# This confirms Jenkins now uses:
+# /var/tmp/jenkins
+# instead of:
+# /tmp
+
+# ==================================================
+# Step 15: Install Git
+# Required for GitHub Clone, Pull and Jenkins SCM
+# ==================================================
+
+# Install Git
+sudo apt install git -y
+
+# Verify Git installation
+git --version
+
+# Expected Output:
+# git version 2.x.x
+
+# ==================================================
+# Step 16: Install Maven
+# Maven is required for Java build projects
+# ==================================================
+
+# Install Maven
+sudo apt install maven -y
+
+# Verify Maven installation
+mvn -version
+
+# Expected Output:
+# Apache Maven 3.x.x
+# Java version: 21
+
+# ==================================================
+# Step 17: Install AWS CLI (Latest Version)
+# Required for AWS and EKS Operations
+# ==================================================
+
+# Install unzip package
+sudo apt install unzip -y
+
+# Download AWS CLI v2
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+# Extract package
+unzip awscliv2.zip
+
+# Install AWS CLI
+sudo ./aws/install
+
+# Verify installation
+aws --version
+
+# Expected Output:
+# aws-cli/2.x.x
+
+# ==================================================
+# Step 18: Install kubectl (Latest Stable Version)
+# Required for Kubernetes and EKS Cluster Management
+# ==================================================
+
+# Download latest kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+# Give execute permission
+chmod +x kubectl
+
+# Move kubectl binary
+sudo mv kubectl /usr/local/bin/
+
+# Verify installation
+kubectl version --client
+
+# Expected Output:
+# Client Version: v1.xx.x
+
+# ==================================================
+# Step 19: Install eksctl (Latest Version)
+# Required for EKS Cluster Creation and Management
+# ==================================================
+
+# Download latest eksctl
+curl --silent --location \
+"https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | \
+tar xz -C /tmp
+
+# Move eksctl binary
+sudo mv /tmp/eksctl /usr/local/bin
+
+# Verify installation
+eksctl version
+
+# Expected Output:
+# 0.xx.x
+
+# ==================================================
+# Step 20: Verify All Installed Tools
+# ==================================================
+
+java -version
+jenkins --version
+docker --version
+git --version
+mvn -version
+aws --version
+kubectl version --client
+eksctl version
+
+# ==================================================
+# Step 21: Configure AWS Credentials (Optional)
+# ==================================================
+
+# aws configure
+
+# Provide:
+# AWS Access Key ID
+# AWS Secret Access Key
+# AWS Region (Example: us-east-1)
+# Output Format (json)
+
+# Verify configured identity
+# aws sts get-caller-identity
+
+# Expected Output:
+# Account ID, User ARN, and User Details
+
+# ==================================================
+# Step 22: Install Helm
+# Required for Kubernetes Package Management
+# ==================================================
+
+# Install Helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Verify Helm installation
+helm version
+
+# Expected Output:
+# version.BuildInfo{Version:"v3.x.x"...}
+
+# ==================================================
+# Step 23: Install NGINX Ingress Controller
+# Required for Kubernetes Ingress Routing
+# ==================================================
+
+# Add NGINX Ingress Helm repository
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+# Update Helm repositories
+helm repo update
+
+# ==================================================
+# Jenkins + Docker + Git + Maven + AWS CLI + kubectl + eksctl + Helm + NGINX Ingress
+# Setup Completed Successfully
+# ==================================================
