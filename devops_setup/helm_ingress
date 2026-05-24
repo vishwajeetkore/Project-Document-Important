@@ -1,0 +1,189 @@
+# ==================================================
+# INSTALL HELM
+# ==================================================
+
+# Install Helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Verify Helm installation
+helm version
+
+# ==================================================
+# HELM REPOSITORY COMMANDS
+# ==================================================
+
+# Add Helm repository
+helm repo add <repo-name> <repo-url>
+
+# Example: Add NGINX Ingress repo
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+# Update repositories
+helm repo update
+
+# List repositories
+helm repo list
+
+# Search chart in repo
+helm search repo <chart-name>
+
+# Example
+helm search repo ingress-nginx
+
+# Remove repository
+helm repo remove <repo-name>
+
+# Example
+helm repo remove ingress-nginx
+
+# ==================================================
+# HELM INSTALL COMMANDS
+# ==================================================
+
+# Install chart
+helm install <release-name> <chart-name>
+
+# Example
+helm install ingress-nginx ingress-nginx/ingress-nginx
+
+# Install with namespace
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+--namespace ingress-nginx \
+--create-namespace
+
+# Dry run before install
+helm install <release-name> <chart-name> --dry-run
+
+# ==================================================
+# HELM LIST AND STATUS COMMANDS
+# ==================================================
+
+# List Helm releases
+helm list
+
+# List releases from all namespaces
+helm list -A
+
+# Check release status
+helm status <release-name>
+
+# Example
+helm status ingress-nginx
+
+# ==================================================
+# HELM UPGRADE COMMANDS
+# ==================================================
+
+# Upgrade Helm release
+helm upgrade <release-name> <chart-name>
+
+# Example
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx
+
+# Upgrade using values file
+helm upgrade <release-name> <chart-name> -f values.yaml
+
+# ==================================================
+# HELM HISTORY AND ROLLBACK
+# ==================================================
+
+# View release history
+helm history <release-name>
+
+# Example
+helm history ingress-nginx
+
+# Rollback release
+helm rollback <release-name> <revision>
+
+# Example
+helm rollback ingress-nginx 1
+
+# ==================================================
+# HELM UNINSTALL COMMANDS
+# ==================================================
+
+# Uninstall release
+helm uninstall <release-name>
+
+# Example
+helm uninstall ingress-nginx
+
+# Uninstall from namespace
+helm uninstall ingress-nginx -n ingress-nginx
+
+# ==================================================
+# HELM VALUES AND INFO
+# ==================================================
+
+# Show default values
+helm show values <chart-name>
+
+# Example
+helm show values ingress-nginx/ingress-nginx
+
+# Show chart details
+helm show chart <chart-name>
+
+# Get installed values
+helm get values <release-name>
+
+# Example
+helm get values ingress-nginx
+
+# Get manifest
+helm get manifest <release-name>
+
+# Example
+helm get manifest ingress-nginx
+
+# ==================================================
+# NGINX INGRESS INSTALL USING HELM
+# ==================================================
+
+# Add ingress repo
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+# Update repo
+helm repo update
+
+# Install ingress controller
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+--namespace ingress-nginx \
+--create-namespace
+
+# ==================================================
+# VERIFY NGINX INGRESS
+# ==================================================
+
+# Check ingress namespace
+kubectl get ns
+
+# Check ingress pods
+kubectl get pods -n ingress-nginx
+
+# Check ingress service
+kubectl get svc -n ingress-nginx
+
+# Check ingress deployment
+kubectl get deploy -n ingress-nginx
+
+# Check ingress controller logs
+kubectl logs -n ingress-nginx deployment/ingress-nginx-controller
+
+# Check ingress resources
+kubectl get ingress -A
+
+# ==================================================
+# DELETE NGINX INGRESS
+# ==================================================
+
+# Delete ingress release
+helm uninstall ingress-nginx -n ingress-nginx
+
+# Delete namespace (optional)
+kubectl delete ns ingress-nginx
+
+# ==================================================
+# HELM + NGINX INGRESS COMMANDS COMPLETED
+# ==================================================
