@@ -1,0 +1,43 @@
+replicaCount: 2
+
+image:
+  repository: 907260787494.dkr.ecr.us-east-1.amazonaws.com/ecomm_store
+  tag: latest
+  pullPolicy: Always
+
+container:
+  name: ecommstorecontainer
+  port: 80
+
+service:
+  name: ecommstoresvc
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+resources:
+  requests:
+    cpu: "150m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+labels:
+  app: ecommstore
+
+# ✅ ADD THIS BLOCK
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  paths:
+    - path: /
+      pathType: Prefix
+
+hpa:
+ enabled: true
+ minReplicas: 2
+ maxReplicas: 5
+ cpuUtilization: 50
